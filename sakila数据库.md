@@ -628,7 +628,7 @@ sakila的内容主要可以分为:
    1 row in set (0.00 sec)
    ```
 
-3. inventory_in_stock 
+3. inventory_in_stock
 
    该函数用来判断指定的库存碟片(这里指商店拥有的碟片)是否没有被租出去
 
@@ -685,7 +685,7 @@ sakila的内容主要可以分为:
 
    payment_date触发器在插入payment表的时候设置插入元组的payment_date属性为当前时间
 
-3. rental_date 
+3. rental_date
 
    插入rental表的时候设置插入元组的payment_date属性为当前时间
 
