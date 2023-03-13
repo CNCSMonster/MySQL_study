@@ -4,7 +4,7 @@
 
 [MySQL :: MySQL 8.0 Reference Manual :: 3 Tutorial](https://dev.mysql.com/doc/refman/8.0/en/tutorial.html)
 
-## 一.连接远程服务器与断开连接
+## **一.连接远程服务器与断开连接**
 
 #### 1\.连接远程MySQL
 
@@ -435,7 +435,7 @@ You can see at any time which database is currently selected using `SELECT` `DAT
 
 一个原因可能是因为mysql中客户端的语句结束符号是可以通过`delimiter` 命令更改的。
 
-所以语句结束符不一定总是`;` 
+所以语句结束符不一定总是`;`
 
 )
 
@@ -549,21 +549,21 @@ Suppose that your pet records can be described as shown here. (Observe that MySQ
 |**name**|**owner**|**species**|**sex**|**birth**|**death**|
 |-|-|-|-|-|-|
 |**Fluffy**|Harold|cat|f|1993-02-04||
-|-|-|-|-|-|-|
+|\-|\-|\-|\-|\-|\-|
 |**Claws**|Gwen|cat|m|1994-03-17||
-|-|-|-|-|-|-|
+|\-|\-|\-|\-|\-|\-|
 |**Buffy**|Harold|dog|f|1989-05-13||
-|-|-|-|-|-|-|
+|\-|\-|\-|\-|\-|\-|
 |**Fang**|Benny|dog|m|1990-08-27||
-|-|-|-|-|-|-|
+|\-|\-|\-|\-|\-|\-|
 |**Bowser**|Diane|dog|m|1979-08-31|1995-07-29|
-|-|-|-|-|-|-|
+|\-|\-|\-|\-|\-|\-|
 |**Chirpy**|Gwen|bird|f|1998-09-11||
-|-|-|-|-|-|-|
+|\-|\-|\-|\-|\-|\-|
 |**Whistler**|Gwen|bird||1997-12-09||
-|-|-|-|-|-|-|
+|\-|\-|\-|\-|\-|\-|
 |**Slim**|Benny|snake|m|1996-04-29||
-|-|-|-|-|-|-|
+|\-|\-|\-|\-|\-|\-|
 
 Because you are beginning with an empty table, an easy way to populate it is to create a text file containing a row for each of your animals, then load the contents of the file into the table with a single statement.
 
@@ -623,4 +623,1075 @@ From this example, you should be able to see that there would be a lot more typi
 
 从这个例子，你应该可以意识到如果你使用多个`insert` 语句而不是一个`load data` 语句来在开始的时候加载记录，要键入更多相关字符。
 
-(其实这段话是在表达一种倾向，载入数据的时候，如果可以，尽量使用`load data` 语句而不是多个`insert` 语句，后者需要打下下键盘，可能会造成很多时间的浪费而且会增加出错几率)
+(其实这段话是在表达一种倾向，载入数据的时候，如果可以，尽量使用`load data` 语句而不是多个`insert` 语句，后者需要更多的键入，可能会造成很多时间的浪费而且会增加出错的概率)
+
+### 4\.从表中检索信息
+
+The `SELECT` statement is used to pull information from a table. The general form of the statement is:
+
+用来从表中拉取数据。一般使用格式如下：
+
+```sql
+  SELECT what_to_select
+  FROM which_table
+  WHERE conditions_to_satisfy;
+```
+
+`what_to_select` indicates what you want to see. This can be a list of columns, or `*` to indicate “all columns.” `which_table` indicates the table from which you want to retrieve data. The `WHERE` clause is optional. If it is present, `conditions_to_satisfy` specifies one or more conditions that rows must satisfy to qualify for retrieval.
+
+`what_to_select` 为你想要看的内容。这可以是一个列名的列表，或者是使用`*` 来表达"所有列".`which_table` 为你想要从中检索数据的表。`where` 分句是可有可无的。如果存在该分句，`conditions_to_satisfy` 用来指明你想要检索的行需要满足的一个或者多个条件(用笔者的话说，其实就是一个简单的或者复合的逻辑表达式，值为真或者假)
+
+1. Selecting All Data 选择所有数据
+
+   1. The simplest form of `SELECT` retrieves everything from a table:
+
+      `select` 检索表格中所有信息的最简单格式如下:
+
+      ```sql
+      mysql> SELECT * FROM pet;
+      +----------+--------+---------+------+------------+------------+
+      | name     | owner  | species | sex  | birth      | death      |
+      +----------+--------+---------+------+------------+------------+
+      | Fluffy   | Harold | cat     | f    | 1993-02-04 | NULL       |
+      | Claws    | Gwen   | cat     | m    | 1994-03-17 | NULL       |
+      | Buffy    | Harold | dog     | f    | 1989-05-13 | NULL       |
+      | Fang     | Benny  | dog     | m    | 1990-08-27 | NULL       |
+      | Bowser   | Diane  | dog     | m    | 1979-08-31 | 1995-07-29 |
+      | Chirpy   | Gwen   | bird    | f    | 1998-09-11 | NULL       |
+      | Whistler | Gwen   | bird    | NULL | 1997-12-09 | NULL       |
+      | Slim     | Benny  | snake   | m    | 1996-04-29 | NULL       |
+      | Puffball | Diane  | hamster | f    | 1999-03-30 | NULL       |
+      +----------+--------+---------+------+------------+------------+
+      ```
+
+      This form of `SELECT` uses `*`, which is shorthand for “select all columns.” This is useful if you want to review your entire table, for example, after you've just loaded it with your initial data set. *For example, you may happen to think that the birth date for Bowser doesn't seem quite right. Consulting your original pedigree papers, you find that the correct birth year should be 1989, not 1979.*
+
+      `select` 的这种格式使用`*` 来作为”选择所有列“的简化表达。这有利于你浏览整个表，例如，在你刚从初始数据集中把数据加载进来。举个例子，你可能认为Bower的生日信息并不完全正确，通过咨询你最初的血统文件，你可能发现正确的生日年份应该是1989而不是1979.
+
+      There are at least two ways to fix this:
+
+      有两种方式去修复这个错误
+
+      * Edit the file `pet.txt` to correct the error, then empty the table and reload it using `DELETE` and `LOAD DATA`:
+
+        通过编辑`pet.txt` 文件来修复这个错误，然后用`delete` 语句清空表格，再用`load data` 语句重新载入数据:
+
+        ```sql
+        mysql> DELETE FROM pet;
+        mysql> LOAD DATA LOCAL INFILE 'pet.txt' INTO TABLE pet;
+        ```
+
+        However, if you do this, you must also re-enter the record for Puffball.
+
+        然而，如果你这样做，那你不得不总是都重新输入Puffball的记录(
+
+        (提示，如果你只是单独看这一小节，可能不知道，Puffball是上一节我们load data后手动insert加入的新宠物记录)
+
+      * Fix only the erroneous record with an `UPDATE` statement:
+
+        使用`update` 语句单独修复错误的记录
+
+        ```sql
+        mysql> UPDATE pet SET birth = '1989-08-31' WHERE name = 'Bowser';
+        ```
+
+        The `UPDATE` changes only the record in question and does not require you to reload the table.
+
+        `update` 仅仅改变有问题的记录，并且不需要你重新载入整个表的数据
+
+      There is an exception to the principle that `SELECT *` selects all columns. If a table contains invisible columns, `*` does not include them. For more information, see [Section 13.1.20.10, “Invisible Columns”](https://dev.mysql.com/doc/refman/8.0/en/invisible-columns.html).
+
+      使用`select ` *来选择所有列有个例外情况。如果一个表格有不可见的列，*`*` 不会包含那些列。查看 [Section 13.1.20.10, “Invisible Columns”](https://dev.mysql.com/doc/refman/8.0/en/invisible-columns.html)来了解更多情况。
+
+2. Selecting Particular Rows 选择特定的行
+
+   As shown in the preceding section, it is easy to retrieve an entire table. Just omit the `WHERE` clause from the `SELECT` statement. But typically you don't want to see the entire table, particularly when it becomes large. Instead, you're usually more interested in answering a particular question, in which case you specify some constraints on the information you want. Let's look at some selection queries in terms of questions about your pets that they answer.
+
+   如前面小节所示，很容易检索整个个表。只要不给出`select` 语句中的`where` 子句即可。但是往往你不想要查看整个表，特别是这个表很庞大的时候。恰恰相反的是，你一般对回答某个特定问题感兴趣，这需要用到一些附加了一些限制的信息。
+
+   You can select only particular rows from your table. For example, if you want to verify the change that you made to Bowser's birth date, select Bowser's record like this:
+
+   你可以只在你的表格中挑选一些特别的列。例如，你想要验证你对Bower的生日的改变，可以像下面一样查询Bower的记录:
+
+   ```sql
+   mysql> SELECT * FROM pet WHERE name = 'Bowser';
+   +--------+-------+---------+------+------------+------------+
+   | name   | owner | species | sex  | birth      | death      |
+   +--------+-------+---------+------+------------+------------+
+   | Bowser | Diane | dog     | m    | 1989-08-31 | 1995-07-29 |
+   +--------+-------+---------+------+------------+------------+
+   ```
+
+   The output confirms that the year is correctly recorded as 1989, not 1979.
+
+   输出结果证实了年龄记录是正确的1989，而不是1979.
+
+   String comparisons normally are case-insensitive, so you can specify the name as `'bowser'`, `'BOWSER'`, and so forth. The query result is the same.
+
+   字符串比较总是大小写不敏感的，所以你能够用`bowser`,`BOWSER` 等等，查询结果都会是一样的
+
+   You can specify conditions on any column, not just `name`. For example, if you want to know which animals were born during or after 1998, test the `birth` column:
+
+   你能够指定附加到任何列上的条件，而不只是`name` 。例如，如果你想要知道那些动物是在1998或者之后出生的，检查`birth` 列:
+
+   ```sql
+   mysql> SELECT * FROM pet WHERE birth >= '1998-1-1';
+   +----------+-------+---------+------+------------+-------+
+   | name     | owner | species | sex  | birth      | death |
+   +----------+-------+---------+------+------------+-------+
+   | Chirpy   | Gwen  | bird    | f    | 1998-09-11 | NULL  |
+   | Puffball | Diane | hamster | f    | 1999-03-30 | NULL  |
+   +----------+-------+---------+------+------------+-------+
+   ```
+
+   You can combine conditions, for example, to locate female dogs:
+
+   你也能使用复数个条件，如，定位母狗:
+
+   ```sql
+   mysql> SELECT * FROM pet WHERE species = 'dog' AND sex = 'f';
+   +-------+--------+---------+------+------------+-------+
+   | name  | owner  | species | sex  | birth      | death |
+   +-------+--------+---------+------+------------+-------+
+   | Buffy | Harold | dog     | f    | 1989-05-13 | NULL  |
+   +-------+--------+---------+------+------------+-------+
+   ```
+
+   The preceding query uses the `AND` logical operator. There is also an `OR` operator:
+
+   上述查询使用了`AND` 这个逻辑运算符。同样也可以使用`or` 运算符
+
+   ```sql
+   mysql> SELECT * FROM pet WHERE species = 'snake' OR species = 'bird';
+   +----------+-------+---------+------+------------+-------+
+   | name     | owner | species | sex  | birth      | death |
+   +----------+-------+---------+------+------------+-------+
+   | Chirpy   | Gwen  | bird    | f    | 1998-09-11 | NULL  |
+   | Whistler | Gwen  | bird    | NULL | 1997-12-09 | NULL  |
+   | Slim     | Benny | snake   | m    | 1996-04-29 | NULL  |
+   +----------+-------+---------+------+------------+-------+
+   ```
+
+   `AND` and `OR` may be intermixed, although `AND` has higher precedence than `OR`. If you use both operators, it is a good idea to use parentheses to indicate explicitly how conditions should be grouped:
+
+   `AND` 和`OR` 运算符也可以混合使用，需要注意`AND` 的优先级比`OR` 高。如果你同时使用两个运算符号，最好加上圆括号来显式地指定运算顺序:
+
+   ```
+   mysql> SELECT * FROM pet WHERE (species = 'cat' AND sex = 'm')
+          OR (species = 'dog' AND sex = 'f');
+   +-------+--------+---------+------+------------+-------+
+   | name  | owner  | species | sex  | birth      | death |
+   +-------+--------+---------+------+------------+-------+
+   | Claws | Gwen   | cat     | m    | 1994-03-17 | NULL  |
+   | Buffy | Harold | dog     | f    | 1989-05-13 | NULL  |
+   +-------+--------+---------+------+------------+-------+
+   ```
+
+3. Selecting Particular Columns 选择特定的列
+
+   If you do not want to see entire rows from your table, just name the columns in which you are interested, separated by commas. For example, if you want to know when your animals were born, select the `name` and `birth` columns:
+
+   如果你不想要查看完整的表记录，只需要列出你感兴趣的列即可，如果有多个，彼此用逗号隔开。举个例子，如果你想要知道你的宠物什么时候出生的，选择`name` 列和`birth` 列:
+
+   ```sql
+   mysql> SELECT name, birth FROM pet;
+   +----------+------------+
+   | name     | birth      |
+   +----------+------------+
+   | Fluffy   | 1993-02-04 |
+   | Claws    | 1994-03-17 |
+   | Buffy    | 1989-05-13 |
+   | Fang     | 1990-08-27 |
+   | Bowser   | 1989-08-31 |
+   | Chirpy   | 1998-09-11 |
+   | Whistler | 1997-12-09 |
+   | Slim     | 1996-04-29 |
+   | Puffball | 1999-03-30 |
+   +----------+------------+
+   ```
+
+   To find out who owns pets, use this query:
+
+   为了找出拥有宠物的人，使用如下查询:
+
+   ```sql
+   mysql> SELECT owner FROM pet;
+   +--------+
+   | owner  |
+   +--------+
+   | Harold |
+   | Gwen   |
+   | Harold |
+   | Benny  |
+   | Diane  |
+   | Gwen   |
+   | Gwen   |
+   | Benny  |
+   | Diane  |
+   +--------+
+   ```
+
+   Notice that the query simply retrieves the `owner` column from each record, and some of them appear more than once. To minimize the output, retrieve each unique output record just once by adding the keyword `DISTINCT`:
+
+   注意该查询只是简单地检索了每个记录里面地`owner` 列的值，并且它们在结果中重复出现了。为了简化结果，可以使用关键字`distinct` 来指定检索不重复的记录:
+
+   ```sql
+   mysql> SELECT DISTINCT owner FROM pet;
+   +--------+
+   | owner  |
+   +--------+
+   | Benny  |
+   | Diane  |
+   | Gwen   |
+   | Harold |
+   +--------+
+   ```
+
+   You can use a `WHERE` clause to combine row selection with column selection. For example, to get birth dates for dogs and cats only, use this query:
+
+   你能够在行选择的基础上结合一个`where` 分句来选择列。举个例子，为了仅仅获得狗和猫的生日，使用如下查询:
+
+   ```
+   mysql> SELECT name, species, birth FROM pet
+          WHERE species = 'dog' OR species = 'cat';
+   +--------+---------+------------+
+   | name   | species | birth      |
+   +--------+---------+------------+
+   | Fluffy | cat     | 1993-02-04 |
+   | Claws  | cat     | 1994-03-17 |
+   | Buffy  | dog     | 1989-05-13 |
+   | Fang   | dog     | 1990-08-27 |
+   | Bowser | dog     | 1989-08-31 |
+   +--------+---------+------------+
+   ```
+
+4. Sorting Rows 对行进行排序
+
+   You may have noticed in the preceding examples that the result rows are displayed in no particular order. It is often easier to examine query output when the rows are sorted in some meaningful way. To sort a result, use an `ORDER BY` clause.
+
+   你可能注意到了前面例子中查询结果都是无序的。如果查询结果中的行能够有一种有意义的顺序，往往会更有利于我们检查查询结果。可以用`order by` 分句来对结果进行排序。
+
+   Here are animal birthdays, sorted by date:
+
+   下面查询按照日期排列的动物生日:
+
+   ```sql
+   mysql> SELECT name, birth FROM pet ORDER BY birth;
+   +----------+------------+
+   | name     | birth      |
+   +----------+------------+
+   | Buffy    | 1989-05-13 |
+   | Bowser   | 1989-08-31 |
+   | Fang     | 1990-08-27 |
+   | Fluffy   | 1993-02-04 |
+   | Claws    | 1994-03-17 |
+   | Slim     | 1996-04-29 |
+   | Whistler | 1997-12-09 |
+   | Chirpy   | 1998-09-11 |
+   | Puffball | 1999-03-30 |
+   +----------+------------+
+   ```
+
+   On character type columns, sorting—like all other comparison operations—is normally performed in a case-insensitive fashion. This means that the order is undefined for columns that are identical except for their case. You can force a case-sensitive sort for a column by using `BINARY` like so: `ORDER BY BINARY col_name`.
+
+   在字符类型的列的排序，就像是比较运算操作一样，总是大小写不敏感的。这意味着，对于那些除了大小写以外完全的值，它们的先后顺序是未定义的。你可以通过`BINARY`对某个列强行使用大小写敏感的排序，像这样:`order by binary col_name` .
+
+   The default sort order is ascending, with smallest values first. To sort in reverse (descending) order, add the `DESC` keyword to the name of the column you are sorting by:
+
+   默认的排序顺序是升序，最小的值放前面。为了使用降序排序，在要排序的列名后面加上`desc` 关键字:
+
+   ```sql
+   mysql> SELECT name, birth FROM pet ORDER BY birth DESC;
+   +----------+------------+
+   | name     | birth      |
+   +----------+------------+
+   | Puffball | 1999-03-30 |
+   | Chirpy   | 1998-09-11 |
+   | Whistler | 1997-12-09 |
+   | Slim     | 1996-04-29 |
+   | Claws    | 1994-03-17 |
+   | Fluffy   | 1993-02-04 |
+   | Fang     | 1990-08-27 |
+   | Bowser   | 1989-08-31 |
+   | Buffy    | 1989-05-13 |
+   +----------+------------+
+   ```
+
+   You can sort on multiple columns, and you can sort different columns in different directions. For example, to sort by type of animal in ascending order, then by birth date within animal type in descending order (youngest animals first), use the following query:
+
+   你能够对多个列进行排序，并且你可以对不同的列使用不同的排序倾向。比如，为了升序排序动物的类型，然后再在同类动物中按照动物生日降序排序，使用如下查询:
+
+   ```sql
+   mysql> SELECT name, species, birth FROM pet
+          ORDER BY species, birth DESC;
+   +----------+---------+------------+
+   | name     | species | birth      |
+   +----------+---------+------------+
+   | Chirpy   | bird    | 1998-09-11 |
+   | Whistler | bird    | 1997-12-09 |
+   | Claws    | cat     | 1994-03-17 |
+   | Fluffy   | cat     | 1993-02-04 |
+   | Fang     | dog     | 1990-08-27 |
+   | Bowser   | dog     | 1989-08-31 |
+   | Buffy    | dog     | 1989-05-13 |
+   | Puffball | hamster | 1999-03-30 |
+   | Slim     | snake   | 1996-04-29 |
+   +----------+---------+------------+
+   ```
+
+   The `DESC` keyword applies only to the column name immediately preceding it (`birth`); it does not affect the `species` column sort order.
+
+   `desc` 关键字仅仅作用于紧紧在它前面的列(`birth`).它并不影响`species` 列的排序顺序
+
+5. Date Calculations 日期运算
+
+   MySQL provides several functions that you can use to perform calculations on dates, for example, to calculate ages or extract parts of dates.
+
+   MySQL提供了一些你可以用来进行日期计算的函数，比如，计算年龄或者截取日期的部分
+
+   To determine how many years old each of your pets is, use the `TIMESTAMPDIFF()` function. Its arguments are the unit in which you want the result expressed, and the two dates for which to take the difference. The following query shows, for each pet, the birth date, the current date, and the age in years. An *alias* () is used to make the final output column label more meaningful. `age`
+
+   使用`timestampdiff()` 函数来计算每只宠物的年龄。它的参数依次为结果的单位，以及用来作差的两个日期。下面的查询展示了，每只宠物的生日，当前日期，以及年份制的年龄。使用了别名`age` 来让结果看起来更好理解:
+
+   ```sql
+   mysql> SELECT name, birth, CURDATE(),
+          TIMESTAMPDIFF(YEAR,birth,CURDATE()) AS age
+          FROM pet;
+   +----------+------------+------------+------+
+   | name     | birth      | CURDATE()  | age  |
+   +----------+------------+------------+------+
+   | Fluffy   | 1993-02-04 | 2003-08-19 |   10 |
+   | Claws    | 1994-03-17 | 2003-08-19 |    9 |
+   | Buffy    | 1989-05-13 | 2003-08-19 |   14 |
+   | Fang     | 1990-08-27 | 2003-08-19 |   12 |
+   | Bowser   | 1989-08-31 | 2003-08-19 |   13 |
+   | Chirpy   | 1998-09-11 | 2003-08-19 |    4 |
+   | Whistler | 1997-12-09 | 2003-08-19 |    5 |
+   | Slim     | 1996-04-29 | 2003-08-19 |    7 |
+   | Puffball | 1999-03-30 | 2003-08-19 |    4 |
+   +----------+------------+------------+------+
+   ```
+
+   The query works, but the result could be scanned more easily if the rows were presented in some order. This can be done by adding an clause to sort the output by name: `ORDER BY name`
+
+   查询成功了，但是结果可以按照某种顺序排序，这样会更方便浏览。可以通过增加`order by name` 分句来把结果按照年龄排序。
+
+   ```sql
+   mysql> SELECT name, birth, CURDATE(),
+          TIMESTAMPDIFF(YEAR,birth,CURDATE()) AS age
+          FROM pet ORDER BY name;
+   +----------+------------+------------+------+
+   | name     | birth      | CURDATE()  | age  |
+   +----------+------------+------------+------+
+   | Bowser   | 1989-08-31 | 2003-08-19 |   13 |
+   | Buffy    | 1989-05-13 | 2003-08-19 |   14 |
+   | Chirpy   | 1998-09-11 | 2003-08-19 |    4 |
+   | Claws    | 1994-03-17 | 2003-08-19 |    9 |
+   | Fang     | 1990-08-27 | 2003-08-19 |   12 |
+   | Fluffy   | 1993-02-04 | 2003-08-19 |   10 |
+   | Puffball | 1999-03-30 | 2003-08-19 |    4 |
+   | Slim     | 1996-04-29 | 2003-08-19 |    7 |
+   | Whistler | 1997-12-09 | 2003-08-19 |    5 |
+   +----------+------------+------------+------+
+   ```
+
+   To sort the output by `age` rather than `name`, just use a different `ORDER BY` clause:
+
+   为了按照年龄排序而不是名字排序，使用另一种`order by` 分句
+
+   ```sql
+   mysql> SELECT name, birth, CURDATE(),
+          TIMESTAMPDIFF(YEAR,birth,CURDATE()) AS age
+          FROM pet ORDER BY age;
+   +----------+------------+------------+------+
+   | name     | birth      | CURDATE()  | age  |
+   +----------+------------+------------+------+
+   | Chirpy   | 1998-09-11 | 2003-08-19 |    4 |
+   | Puffball | 1999-03-30 | 2003-08-19 |    4 |
+   | Whistler | 1997-12-09 | 2003-08-19 |    5 |
+   | Slim     | 1996-04-29 | 2003-08-19 |    7 |
+   | Claws    | 1994-03-17 | 2003-08-19 |    9 |
+   | Fluffy   | 1993-02-04 | 2003-08-19 |   10 |
+   | Fang     | 1990-08-27 | 2003-08-19 |   12 |
+   | Bowser   | 1989-08-31 | 2003-08-19 |   13 |
+   | Buffy    | 1989-05-13 | 2003-08-19 |   14 |
+   +----------+------------+------------+------+
+   ```
+
+   A similar query can be used to determine age at death for animals that have died. You determine which animals these are by checking whether the `death` value is `NULL`. Then, for those with non-`NULL` values, compute the difference between the `death` and `birth` values:
+
+   可以使用一种相似的查询来死亡动物的寿命。你可以通过检查`death` 值是否为空来找出那些死亡的动物。然后对于那些`death` 值不为`null` 的动物，计算它们死亡日期和生日之间的差:
+
+   ```sql
+   mysql> SELECT name, birth, death,
+          TIMESTAMPDIFF(YEAR,birth,death) AS age
+          FROM pet WHERE death IS NOT NULL ORDER BY age;
+   +--------+------------+------------+------+
+   | name   | birth      | death      | age  |
+   +--------+------------+------------+------+
+   | Bowser | 1989-08-31 | 1995-07-29 |    5 |
+   +--------+------------+------------+------+
+   ```
+
+   The query uses `death IS NOT NULL` rather than `death <> NULL` because `NULL` is a special value that cannot be compared using the usual comparison operators. This is discussed later. See [Section 3.3.4.6, “Working with NULL Values”](https://dev.mysql.com/doc/refman/8.0/en/working-with-null.html).
+
+   查询使用了`death is not null` 而不是`death <> null` ，是因为`null` 是一个不能够使用一般的比较运算符来比较的特殊值。这个稍后讨论。可以查阅[节3.3.4.6,“使用NULL值”](https://dev.mysql.com/doc/refman/8.0/en/working-with-null.html)。
+
+   What if you want to know which animals have birthdays next month? For this type of calculation, year and day are irrelevant; you simply want to extract the month part of the `birth` column. MySQL provides several functions for extracting parts of dates, such as `YEAR()`, `MONTH()`, and `DAYOFMONTH()`. `MONTH()` is the appropriate function here. To see how it works, run a simple query that displays the value of both `birth` and `MONTH(birth)`:
+
+   如果你想知道哪个动物下个月过生日呢?对于这种类型的计算，年份和月内天数可以忽略；你仅仅想要从`birth` 列中提取出月份信息。MySQL提供了一些用来提取部分日期的函数，比如`year()` ,`month` 以及`dayofmonth()` 。`month()` 正好适用于这种情况。你可以执行下面这个同时展示了`birth` 以及`month(birth)` 的查询来观察这个函数起到什么效果:
+
+   ```sql
+   mysql> SELECT name, birth, MONTH(birth) FROM pet;
+   +----------+------------+--------------+
+   | name     | birth      | MONTH(birth) |
+   +----------+------------+--------------+
+   | Fluffy   | 1993-02-04 |            2 |
+   | Claws    | 1994-03-17 |            3 |
+   | Buffy    | 1989-05-13 |            5 |
+   | Fang     | 1990-08-27 |            8 |
+   | Bowser   | 1989-08-31 |            8 |
+   | Chirpy   | 1998-09-11 |            9 |
+   | Whistler | 1997-12-09 |           12 |
+   | Slim     | 1996-04-29 |            4 |
+   | Puffball | 1999-03-30 |            3 |
+   +----------+------------+--------------+
+   ```
+
+   Finding animals with birthdays in the upcoming month is also simple. Suppose that the current month is April. Then the month value is `4` and you can look for animals born in May (month `5`) like this:
+
+   寻找下个月生日的动物同样简单。假设当前月份是4月，那对应的月份就是`4` ，因此你可以像这样查找生日在五月(月份为`5` )的动物:
+
+   ```sql
+   mysql> SELECT name, birth FROM pet WHERE MONTH(birth) = 5;
+   +-------+------------+
+   | name  | birth      |
+   +-------+------------+
+   | Buffy | 1989-05-13 |
+   +-------+------------+
+   ```
+
+   There is a small complication if the current month is December. You cannot merely add one to the month number (`12`) and look for animals born in month `13`, because there is no such month. Instead, you look for animals born in January (month `1`).
+
+   有一点点复杂的情况是，如果当前月份是12月，你不能够仅仅简单地给12加1然后查询13月份出生地动物，而是应该查找出生在一月(月份1)的动物，因为月份13并不存在。
+
+   You can write the query so that it works no matter what the current month is, so that you do not have to use the number for a particular month. `DATE_ADD()` enables you to add a time interval to a given date. If you add a month to the value of `CURDATE()`, then extract the month part with `MONTH()`, the result produces the month in which to look for birthdays:
+
+   你可以写一个不管当前月份多少不都能够查询到正确结果的查询，不需要用到确定的月份。`date_add()` 允许你给一个给定日期加上一个时间间隔来获取一个新的日期。如果你把通过`curdate()` 得到的当前日期加上一个月，然后再从日期中使用`monthd()` 函数提取出月份，就能够得到寻找生日用到的下个月的月份了:
+
+   ```sql
+   mysql> SELECT name, birth FROM pet
+          WHERE MONTH(birth) = MONTH(DATE_ADD(CURDATE(),INTERVAL 1 MONTH));
+   ```
+
+   A different way to accomplish the same task is to add `1` to get the next month after the current one after using the modulo function (`MOD`) to wrap the month value to `0` if it is currently `12`:
+
+   可以通过先提取出当前日期的月份然后使用`mod()` 函数对12取余(如果它是12的话会把它变为0)，然后再加`1` 的方式来达成同样的效果:
+
+   ```sql
+   mysql> SELECT name, birth FROM pet
+          WHERE MONTH(birth) = MOD(MONTH(CURDATE()), 12) + 1;
+   ```
+
+   `MONTH()` returns a number between `1` and `12`. And `MOD(something,12)` returns a number between `0` and `11`. So the addition has to be after the `MOD()`, otherwise we would go from November (`11`) to January (`1`).
+
+   `month()` 返回一个`1` 和`12` 以及之间的数。同时`mod(something,12)` 返回一个`0`到`11` 以及之间的数。所以加1操作需要在`mod()` 后面进行，不然会出错(这里没有按照原文翻译,译者认为原文这里讲错了)
+
+   ```
+   译者:
+   意思是说mod(curMonth,12)把当前
+   月份curMonth从1-12映射到0-11，然后我们
+   对映射的结果+1得到新的月份,
+   如果我们直接对当前月份+1,然后再使用mod取余
+   的话，我们得到的是一个0-11之间的数，12月份
+   无法映射到。
+   用curMonth=11为例，表示当前月份是11，那下一个月应该
+   是12月，如果我们先加1再用12取余，（11+1）%12=0我们得到的结果是0
+   (原文说的是1，它错了)
+   实际上我们想要的结果是1
+   ```
+
+   If a calculation uses invalid dates, the calculation fails and produces warnings:
+
+   如果一个运算使用了无效的日期，计算会失败并且生成一个警告信息:
+
+   ```
+   mysql> SELECT '2018-10-31' + INTERVAL 1 DAY;
+   +-------------------------------+
+   | '2018-10-31' + INTERVAL 1 DAY |
+   +-------------------------------+
+   | 2018-11-01                    |
+   +-------------------------------+
+   mysql> SELECT '2018-10-32' + INTERVAL 1 DAY;
+   +-------------------------------+
+   | '2018-10-32' + INTERVAL 1 DAY |
+   +-------------------------------+
+   | NULL                          |
+   +-------------------------------+
+   mysql> SHOW WARNINGS;
+   +---------+------+----------------------------------------+
+   | Level   | Code | Message                                |
+   +---------+------+----------------------------------------+
+   | Warning | 1292 | Incorrect datetime value: '2018-10-32' |
+   +---------+------+----------------------------------------+
+   ```
+
+6. Working with NULL Values （NULL值的使用)
+
+   The `NULL` value can be surprising until you get used to it. Conceptually, `NULL` means “a missing unknown value” and it is treated somewhat differently from other values.
+
+   `NULL` 值可能让不熟悉的人感觉奇怪。在定义上，`NULL` 表示“一个不存在的未知的值"，并且它的使用方式和其他值有些不同。
+
+   To test for `NULL`, use the `IS NULL` and `IS NOT NULL` operators, as shown here:
+
+   为了测试`null` 值，这里我们使用了`is null` 和`is not null` 操作符
+
+   ```sql
+   mysql> SELECT 1 IS NULL, 1 IS NOT NULL;
+   +-----------+---------------+
+   | 1 IS NULL | 1 IS NOT NULL |
+   +-----------+---------------+
+   |         0 |             1 |
+   +-----------+---------------+
+   ```
+
+   You cannot use arithmetic comparison operators such as `=`, `<`, or `<>` to test for `NULL`. To demonstrate this for yourself, try the following query:
+
+   你可能不能够使用数值比较运算符像`=`,`<` 或者`<>` 来测试`null` .为了让你体会这点，试试下面的查询:
+
+   ```sql
+   mysql> SELECT 1 = NULL, 1 <> NULL, 1 < NULL, 1 > NULL;
+   +----------+-----------+----------+----------+
+   | 1 = NULL | 1 <> NULL | 1 < NULL | 1 > NULL |
+   +----------+-----------+----------+----------+
+   |     NULL |      NULL |     NULL |     NULL |
+   +----------+-----------+----------+----------+
+   ```
+
+   Because the result of any arithmetic comparison with `NULL` is also `NULL`, you cannot obtain any meaningful results from such comparisons.
+
+   因为使用`null` 进行的任何数值比较的结果都是`null`,你不可能通过这样的比较来获得任何有意义的结果。
+
+   In MySQL, `0` or `NULL` means false and anything else means true. The default truth value from a boolean operation is `1`.
+
+   在MySQL,`0` 或者`null` 被当作false,同时其他值被当作true.默认的布尔类型的真值则是`1` .
+
+   This special treatment of `NULL` is why, in the previous section, it was necessary to determine which animals are no longer alive using `death IS NOT NULL` instead of `death <> NULL`.
+
+   对`null` 的这种特别处理方式，就是为什么在前面的小节中，必须要使用`death is not null` 而不是`death <> null` 来判断动物是否还活着。
+
+   Two `NULL` values are regarded as equal in a `GROUP BY`.
+
+   在`group by` (分组)操作中，两个`null` 值被认为是等价的。
+
+   When doing an `ORDER BY`, `NULL` values are presented first if you do `ORDER BY ... ASC` and last if you do `ORDER BY ... DESC`.
+
+   当执行`order by` 分句的时候,如果你是使用`order by ... asc` 的方式`null` 值被当成序号第一位的值，如果你使用的是`order by ... dsc` 那`null` 值被当成最后一位的值。
+
+   A common error when working with `NULL` is to assume that it is not possible to insert a zero or an empty string into a column defined as `NOT NULL`, but this is not the case. These are in fact values, whereas `NULL` means “not having a value.” You can test this easily enough by using `IS [NOT] NULL` as shown:
+
+   使用`null` 的一个常见的误区是误以为不能够往一个被定义为`not null` 类型的列中插入0或者空字符串，但并非如此。这些其实是值，而`null` 意味着”并不存在这样的一个值"。你可以通过使用`is [not] null` 来测试这一点:
+
+   ```sql
+   mysql> SELECT 0 IS NULL, 0 IS NOT NULL, '' IS NULL, '' IS NOT NULL;
+   +-----------+---------------+------------+----------------+
+   | 0 IS NULL | 0 IS NOT NULL | '' IS NULL | '' IS NOT NULL |
+   +-----------+---------------+------------+----------------+
+   |         0 |             1 |          0 |              1 |
+   +-----------+---------------+------------+----------------+
+   ```
+
+   Thus it is entirely possible to insert a zero or empty string into a `NOT NULL` column, as these are in fact `NOT NULL`. See [Section B.3.4.3, “Problems with NULL Values”](https://dev.mysql.com/doc/refman/8.0/en/problems-with-null.html).
+
+   因此完全可以往一个`not null` 的列中插入0或者空串。详情见[节B.3.4.3, NULL值的问题](https://dev.mysql.com/doc/refman/8.0/en/problems-with-null.html)。
+
+7. Pattern Matching 模式匹配
+
+   MySQL provides standard SQL pattern matching as well as a form of pattern matching based on extended regular expressions similar to those used by Unix utilities such as **vi**, **grep**, and **sed**.
+
+   MySQL提供标准的SQL模式匹配，以及一种类似于utinity工具(如vi,grep,sed)提供的模式的的基于扩展的正则表达式的模式匹配，
+
+   SQL pattern matching enables you to use `_` to match any single character and `%` to match an arbitrary number of characters (including zero characters). In MySQL, SQL patterns are case-insensitive by default. Some examples are shown here. Do not use `=` or `<>` when you use SQL patterns. Use the `LIKE` or `NOT LIKE` comparison operators instead.
+
+   SQL的模式匹配允许你使用`_` 来匹配任何单个字符以及使用`%` 来匹配一串任意长度的字符串(包括空字符串).在MySQL中，SQL模式下默认是大小写不敏感的。下面展示了一些例子。在使用SQL模式时不要使用`=` 或者`<>` ，而是使用`like` 或者`not like`比较运算符。
+
+   To find names beginning with `b`:
+
+   这样寻找`b` 开头的字符:
+
+   ```sql
+   mysql> SELECT * FROM pet WHERE name LIKE 'b%';
+   +--------+--------+---------+------+------------+------------+
+   | name   | owner  | species | sex  | birth      | death      |
+   +--------+--------+---------+------+------------+------------+
+   | Buffy  | Harold | dog     | f    | 1989-05-13 | NULL       |
+   | Bowser | Diane  | dog     | m    | 1989-08-31 | 1995-07-29 |
+   +--------+--------+---------+------+------------+------------+
+   ```
+
+   To find names ending with `fy`:
+
+   这样寻找`fy` 开头的字符:
+
+   ```sql
+   mysql> SELECT * FROM pet WHERE name LIKE '%fy';
+   +--------+--------+---------+------+------------+-------+
+   | name   | owner  | species | sex  | birth      | death |
+   +--------+--------+---------+------+------------+-------+
+   | Fluffy | Harold | cat     | f    | 1993-02-04 | NULL  |
+   | Buffy  | Harold | dog     | f    | 1989-05-13 | NULL  |
+   +--------+--------+---------+------+------------+-------+
+   ```
+
+   To find names containing a `w`:
+
+   这样寻找名字里面包含`w` 的字符:
+
+   ```sql
+   mysql> SELECT * FROM pet WHERE name LIKE '%w%';
+   +----------+-------+---------+------+------------+------------+
+   | name     | owner | species | sex  | birth      | death      |
+   +----------+-------+---------+------+------------+------------+
+   | Claws    | Gwen  | cat     | m    | 1994-03-17 | NULL       |
+   | Bowser   | Diane | dog     | m    | 1989-08-31 | 1995-07-29 |
+   | Whistler | Gwen  | bird    | NULL | 1997-12-09 | NULL       |
+   +----------+-------+---------+------+------------+------------+
+   ```
+
+   To find names containing exactly five characters, use five instances of the `_` pattern character:
+
+   为了寻找刚好包含5个字符的名字，可以使用5个连续的`_` 模式字符:
+
+   ```sql
+   bmysql> SELECT * FROM pet WHERE name LIKE '_____';
+   +-------+--------+---------+------+------------+-------+
+   | name  | owner  | species | sex  | birth      | death |
+   +-------+--------+---------+------+------------+-------+
+   | Claws | Gwen   | cat     | m    | 1994-03-17 | NULL  |
+   | Buffy | Harold | dog     | f    | 1989-05-13 | NULL  |
+   +-------+--------+---------+------+------------+-------+
+   ```
+
+   The other type of pattern matching provided by MySQL uses extended regular expressions. When you test for a match for this type of pattern, use the `REGEXP_LIKE()` function (or the `REGEXP` or `RLIKE` operators, which are synonyms for `REGEXP_LIKE()`).
+
+   MySQL提供的其他模式匹配使用扩展MySQL表达式。当你测试这种模式匹配的时候，使用`regexp_like()` 函数(或者`regexp` 或者`rlike` 运算符，这些是`regexp_like()` 的等价表达)
+
+   The following list describes some characteristics of extended regular expressions:
+
+   下面的列表描述了一些扩展正则表达式的特点:
+
+   * `.` matches any single character.
+
+     `.` 匹配任何单个字符
+
+   * A character class `[...]` matches any character within the brackets. For example, `[abc]` matches `a`, `b`, or `c`. To name a range of characters, use a dash. `[a-z]` matches any letter, whereas `[0-9]` matches any digit.
+
+     一个字符类型`[...]` 匹配任何的方括号内的单个字符。例如，`[abc]` 匹配`a` ,`b` 或者`c` 。
+
+     可以使用一个短破折号来表达一个字符范围。像`[a-z]` 匹配任何的字母，而`[0-9]` 匹配任何数字
+
+   * `*` matches zero or more instances of the thing preceding it. For example, `x*` matches any number of `x` characters, `[0-9]*` matches any number of digits, and `.*` matches any number of anything.
+
+     *匹配0个或者多个它之前的存在。比如*`x*` 匹配任意数量的`x` 字符，`[0-9]*` 匹配任意数量的数字，至于`.*` 则匹配任意长度的任意字符。
+
+   * A regular expression pattern match succeeds if the pattern matches anywhere in the value being tested. (This differs from a `LIKE` pattern match, which succeeds only if the pattern matches the entire value.)
+
+     使用正则表达式进行模式匹配时，无论从待匹配字符串值的哪个位置开始与模板串匹配，匹配成功则模式匹配成功。(这个与`like` 模式匹配不同，它仅当模式匹配了整个待匹配字符串才匹配成功)
+
+   * To anchor a pattern so that it must match the beginning or end of the value being tested, use `^` at the beginning or `$` at the end of the pattern.
+
+     因此为了瞄定一个模式，我们必须匹配待测字符串的开头或者结尾，通过在模式开头使用`^` 或者在结尾使用`$` 的方式。
+
+   To demonstrate how extended regular expressions work, the `LIKE` queries shown previously are rewritten here to use `REGEXP_LIKE()`.
+
+   为了演示扩展正则表达式式如何工作的，把前面展示过的使用`like` 查询语句改写为使用`regexp_like()` 的查询语句
+
+   To find names beginning with `b`, use `^` to match the beginning of the name:
+
+   为了寻找用`b` 开头的名字，使用`^` 来匹配名字的开头:
+
+   ```sql
+   mysql> SELECT * FROM pet WHERE REGEXP_LIKE(name, '^b');
+   +--------+--------+---------+------+------------+------------+
+   | name   | owner  | species | sex  | birth      | death      |
+   +--------+--------+---------+------+------------+------------+
+   | Buffy  | Harold | dog     | f    | 1989-05-13 | NULL       |
+   | Bowser | Diane  | dog     | m    | 1979-08-31 | 1995-07-29 |
+   +--------+--------+---------+------+------------+------------+
+   ```
+
+   To force a regular expression comparison to be case-sensitive, use a case-sensitive collation, or use the `BINARY` keyword to make one of the strings a binary string, or specify the `c` match-control character. Each of these queries matches only lowercase `b` at the beginning of a name:
+
+   为了使得正则匹配大小写敏感，使用一个大小写敏感的核对方式，或者使用`binary`  关键字把其中一个字符串变为二进制字符串的格式，或者指定`c`匹配控制符。其中每个查询都能够仅仅匹配开头是小写`b` 的名字:
+
+   ```sql
+   SELECT * FROM pet WHERE REGEXP_LIKE(name, '^b' COLLATE utf8mb4_0900_as_cs);
+   SELECT * FROM pet WHERE REGEXP_LIKE(name, BINARY '^b');
+   SELECT * FROM pet WHERE REGEXP_LIKE(name, '^b', 'c');
+   ```
+
+   To find names ending with `fy`, use `$` to match the end of the name:
+
+   为了查找用`fy` 结尾的名字，使用`$` 来匹配名字的结尾:
+
+   ```sql
+   mysql> SELECT * FROM pet WHERE REGEXP_LIKE(name, 'fy$');
+   +--------+--------+---------+------+------------+-------+
+   | name   | owner  | species | sex  | birth      | death |
+   +--------+--------+---------+------+------------+-------+
+   | Fluffy | Harold | cat     | f    | 1993-02-04 | NULL  |
+   | Buffy  | Harold | dog     | f    | 1989-05-13 | NULL  |
+   +--------+--------+---------+------+------------+-------+
+   ```
+
+   To find names containing a `w`, use this query:
+
+   为了查找含有`w` 的名字，使用这种查询:
+
+   ```sql
+   mysql> SELECT * FROM pet WHERE REGEXP_LIKE(name, 'w');
+   +----------+-------+---------+------+------------+------------+
+   | name     | owner | species | sex  | birth      | death      |
+   +----------+-------+---------+------+------------+------------+
+   | Claws    | Gwen  | cat     | m    | 1994-03-17 | NULL       |
+   | Bowser   | Diane | dog     | m    | 1989-08-31 | 1995-07-29 |
+   | Whistler | Gwen  | bird    | NULL | 1997-12-09 | NULL       |
+   +----------+-------+---------+------+------------+------------+
+   ```
+
+   Because a regular expression pattern matches if it occurs anywhere in the value, it is not necessary in the previous query to put a wildcard on either side of the pattern to get it to match the entire value as would be true with an SQL pattern.
+
+   因为在正则表达式模式匹配中`w` 出现在待匹配值的任何位置都能匹配成功，所以在上述查询中并不需要在模式的两边加入通配符来让它像SQL模式匹配中做的那样匹配整个值。
+
+   To find names containing exactly five characters, use `^` and `$` to match the beginning and end of the name, and five instances of `.` in between:
+
+   为了查询刚好包含5个字符的名字，使用`^` 以及`$来`匹配名字的开头和结尾，并且使用5个连续的`.` 来匹配之间的任意5个字符:
+
+   （笔者的话:这里的开头可以理解成待匹配字符串的实际字符串第一个字符前面的字符(一个实际不存在的字符)，同样这里的结尾可以理解成待匹配字符串的实际字符串的最后一个字符串的后面一个字符(也是一个实际不存在的字符))
+
+   ```sql
+   mysql> SELECT * FROM pet WHERE REGEXP_LIKE(name, '^.....$');
+   +-------+--------+---------+------+------------+-------+
+   | name  | owner  | species | sex  | birth      | death |
+   +-------+--------+---------+------+------------+-------+
+   | Claws | Gwen   | cat     | m    | 1994-03-17 | NULL  |
+   | Buffy | Harold | dog     | f    | 1989-05-13 | NULL  |
+   +-------+--------+---------+------+------------+-------+
+   ```
+
+   You could also write the previous query using the `{n}` (“repeat-`n`\-times”) operator:
+
+   你也可以像是之前的查询一样使用`{n}` 表达("重复-n-次")
+
+   ```sql
+   mysql> SELECT * FROM pet WHERE REGEXP_LIKE(name, '^.{5}$');
+   +-------+--------+---------+------+------------+-------+
+   | name  | owner  | species | sex  | birth      | death |
+   +-------+--------+---------+------+------------+-------+
+   | Claws | Gwen   | cat     | m    | 1994-03-17 | NULL  |
+   | Buffy | Harold | dog     | f    | 1989-05-13 | NULL  |
+   +-------+--------+---------+------+------------+-------+
+   ```
+
+   For more information about the syntax for regular expressions, see [Section 12.8.2, “Regular Expressions”](https://dev.mysql.com/doc/refman/8.0/en/regexp.html).
+
+   为了了解更多关于正则表达式语法的信息，见[第12.8.2节，"正则表达式"。](https://dev.mysql.com/doc/refman/8.0/en/regexp.html)
+
+8. Counting Rows 行运算
+
+   Databases are often used to answer the question, “How often does a certain type of data occur in a table?” For example, you might want to know how many pets you have, or how many pets each owner has, or you might want to perform various kinds of census operations on your animals.
+
+   数据库经常被用来回答这些问题，“某种类型得数据在表中出现了多少次?"比如，你可能想知道你有多少只宠物，或者每个主人有多少只宠物，或者你可能想要做关于你得动物的多种统计操作。
+
+   Counting the total number of animals you have is the same question as “How many rows are in the `pet` table?” because there is one record per pet. `COUNT(*)` counts the number of rows, so the query to count your animals looks like this:
+
+   计算你拥有的动物的总数等价于这样的问题:宠物表里有多少行?因为每只动物只在表中有一条记录。`count(*)` 能够用来统计行数，因此用来统计你动物数量的查询如下:
+
+   ```sql
+   mysql> SELECT COUNT(*) FROM pet;
+   +----------+
+   | COUNT(*) |
+   +----------+
+   |        9 |
+   +----------+
+   ```
+
+   Earlier, you retrieved the names of the people who owned pets. You can use `COUNT()` if you want to find out how many pets each owner has:
+
+   开始，你想检索拥有宠物的人的名字.如果你还想要查明每个主人拥有多少只宠物，你可以使用 `count()` 来做到:
+
+   ```sql
+   mysql> SELECT owner, COUNT(*) FROM pet GROUP BY owner;
+   +--------+----------+
+   | owner  | COUNT(*) |
+   +--------+----------+
+   | Benny  |        2 |
+   | Diane  |        2 |
+   | Gwen   |        3 |
+   | Harold |        2 |
+   +--------+----------+
+   ```
+
+   The preceding query uses `GROUP BY` to group all records for each `owner`. The use of `COUNT()` in conjunction with `GROUP BY` is useful for characterizing your data under various groupings. The following examples show different ways to perform animal census operations.
+
+   上述查询使用`group by` 来把属于每个`owner`的记录分组。使用`count()` 与`group by` 组合在一起有利于在不同分组下描述你的数据。下面的例子展现了多种进行动物统计操作的方式.
+
+   Number of animals per species:
+
+   统计每种动物的数量
+
+   ```sql
+   mysql> SELECT species, COUNT(*) FROM pet GROUP BY species;
+   +---------+----------+
+   | species | COUNT(*) |
+   +---------+----------+
+   | bird    |        2 |
+   | cat     |        2 |
+   | dog     |        3 |
+   | hamster |        1 |
+   | snake   |        1 |
+   +---------+----------+
+   ```
+
+   Number of animals per sex:
+
+   统计每个性别的动物的数量
+
+   ```sql
+   mysql> SELECT sex, COUNT(*) FROM pet GROUP BY sex;
+   +------+----------+
+   | sex  | COUNT(*) |
+   +------+----------+
+   | NULL |        1 |
+   | f    |        4 |
+   | m    |        4 |
+   +------+----------+
+   ```
+
+   (In this output, `NULL` indicates that the sex is unknown.)
+
+   在这个输出中在，`null` 表示性别未知的情况。
+
+   Number of animals per combination of species and sex:
+
+   统计每种类别中每种性别的动物的数量
+
+   ```sql
+   mysql> SELECT species, sex, COUNT(*) FROM pet GROUP BY species, sex;
+   +---------+------+----------+
+   | species | sex  | COUNT(*) |
+   +---------+------+----------+
+   | bird    | NULL |        1 |
+   | bird    | f    |        1 |
+   | cat     | f    |        1 |
+   | cat     | m    |        1 |
+   | dog     | f    |        1 |
+   | dog     | m    |        2 |
+   | hamster | f    |        1 |
+   | snake   | m    |        1 |
+   +---------+------+----------+
+   ```
+
+   You need not retrieve an entire table when you use `COUNT()`. For example, the previous query, when performed just on dogs and cats, looks like this:
+
+   当你使用`count()` 聚集函数的时候你不需要检索整个表。如下例，相对于上述查询，仅仅做了在狗和猫上的部分:
+
+   ```sql
+   mysql> SELECT species, sex, COUNT(*) FROM pet
+          WHERE species = 'dog' OR species = 'cat'
+          GROUP BY species, sex;
+   +---------+------+----------+
+   | species | sex  | COUNT(*) |
+   +---------+------+----------+
+   | cat     | f    |        1 |
+   | cat     | m    |        1 |
+   | dog     | f    |        1 |
+   | dog     | m    |        2 |
+   +---------+------+----------+
+   ```
+
+   Or, if you wanted the number of animals per sex only for animals whose sex is known:
+
+   或者，如果你静静仅仅想知道已知性别的动物的数量:
+
+   ```sql
+   mysql> SELECT species, sex, COUNT(*) FROM pet
+          WHERE sex IS NOT NULL
+          GROUP BY species, sex;
+   +---------+------+----------+
+   | species | sex  | COUNT(*) |
+   +---------+------+----------+
+   | bird    | f    |        1 |
+   | cat     | f    |        1 |
+   | cat     | m    |        1 |
+   | dog     | f    |        1 |
+   | dog     | m    |        2 |
+   | hamster | f    |        1 |
+   | snake   | m    |        1 |
+   +---------+------+----------+
+   ```
+
+   If you name columns to select in addition to the `COUNT()` value, a `GROUP BY` clause should be present that names those same columns. Otherwise, the following occurs:
+
+   如果你在查询语句中使用了`count()` 同时还罗列了其他列，那使用的`group by` 分句应该罗列那些罗列在查询选择里的列，不然，可能出现如下情况:
+
+   * If the `ONLY_FULL_GROUP_BY` SQL mode is enabled, an error occurs:
+
+     如果处于`only_full_group_by` 的SQL模式下，会发生一个错误:
+
+     ```sql
+     mysql> SET sql_mode = 'ONLY_FULL_GROUP_BY';
+     Query OK, 0 rows affected (0.00 sec)
+     
+     mysql> SELECT owner, COUNT(*) FROM pet;
+     ERROR 1140 (42000): In aggregated query without GROUP BY, expression
+     #1 of SELECT list contains nonaggregated column 'menagerie.pet.owner';
+     this is incompatible with sql_mode=only_full_group_by
+     ```
+
+   * If `ONLY_FULL_GROUP_BY` is not enabled, the query is processed by treating all rows as a single group, but the value selected for each named column is nondeterministic. The server is free to select the value from any row:
+
+     如果没有启动`only_full_group_by` 模式，查询会把所有的行当作一个分组来处理，但是对于在查询语句中罗列出来的要查询列的取值是不确定的。服务器可能随意地从任何行去取值。
+
+     ```sql
+     mysql> SET sql_mode = '';
+     Query OK, 0 rows affected (0.00 sec)
+     
+     mysql> SELECT owner, COUNT(*) FROM pet;
+     +--------+----------+
+     | owner  | COUNT(*) |
+     +--------+----------+
+     | Harold |        8 |
+     +--------+----------+
+     1 row in set (0.00 sec)
+     ```
+
+   See also [Section 12.20.3, “MySQL Handling of GROUP BY”](https://dev.mysql.com/doc/refman/8.0/en/group-by-handling.html). See [Section 12.20.1, “Aggregate Function Descriptions”](https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html) for information about `COUNT(expr)` behavior and related optimizations.
+
+   详情参考[部分12.20.3,“MySQL分组处理”](https://dev.mysql.com/doc/refman/8.0/en/group-by-handling.html)。关于`count(expr)` 地表现和相关优化，见[节 12.20.1，”关于聚集函数的描述"](https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html)。
+
+9. Using More Than one Table 多表操作
+
+   The `pet` table keeps track of which pets you have. If you want to record other information about them, such as events in their lives like visits to the vet or when litters are born, you need another table. What should this table look like? It needs to contain the following information:
+
+   `pet` 记录了你们拥有的宠物。如果你想要记录其他关于关于它们的信息，比如它们生命中的重要事件,比如见兽医，比如幼崽的出生，你需要其他的表。这个表应该长什么样呢?它需要包含如下信息:
+
+   * The pet name so that you know which animal each event pertains to.
+
+     宠物的名字。因此你可以知道每个事件相关的宠物有哪些
+
+   * A date so that you know when the event occurred.
+
+     事件发生的日期
+
+   * A field to describe the event.
+
+     描述这个事件的属性
+
+   * An event type field, if you want to be able to categorize events.
+
+     事件类型属性，如果你需要能够对事件进行分类的话。
+
+   Given these considerations, the `CREATE TABLE` statement for the `event` table might look like this:
+
+   因为有这些考虑，`create table` 语句可能应该像这样来建立`event` 表:
+
+   ```sql
+   mysql> CREATE TABLE event (name VARCHAR(20), date DATE,
+          type VARCHAR(15), remark VARCHAR(255));
+   ```
+
+   As with the `pet` table, it is easiest to load the initial records by creating a tab-delimited text file containing the following information.
+
+   与宠物表相比，它更容易通过创建一个制表符分割的包含如下信息的文本文件来载入初始记录，
+
+   |**name**|**date**|**type**|**remark**|
+   |-|-|-|-|
+   |**Fluffy**|1995-05-15|litter|4 kittens, 3 female, 1 male|
+   |-|-|-|-|
+   |**Buffy**|1993-06-23|litter|5 puppies, 2 female, 3 male|
+   |-|-|-|-|
+   |**Buffy**|1994-06-19|litter|3 puppies, 3 female|
+   |-|-|-|-|
+   |**Chirpy**|1999-03-21|vet|needed beak straightened|
+   |-|-|-|-|
+   |**Slim**|1997-08-03|vet|broken rib|
+   |-|-|-|-|
+   |**Bowser**|1991-10-12|kennel||
+   |-|-|-|-|
+   |**Fang**|1991-10-12|kennel||
+   |-|-|-|-|
+   |**Fang**|1998-08-28|birthday|Gave him a new chew toy|
+   |-|-|-|-|
+   |**Claws**|1998-03-17|birthday|Gave him a new flea collar|
+   |-|-|-|-|
+   |**Whistler**|1998-12-09|birthday|First birthday|
+   |-|-|-|-|
+
+   Load the records like this:
+
+   加载记录语句如下:
+
+   ```sql
+   mysql> LOAD DATA LOCAL INFILE 'event.txt' INTO TABLE event;
+   ```
+
+   Based on what you have learned from the queries that you have run on the `pet` table, you should be able to perform retrievals on the records in the `event` table; the principles are the same. But when is the `event` table by itself insufficient to answer questions you might ask?
+
+   根据你从在`pet` 表上执行查询操作时i学到的内容，你应该能够在`event` 表中检索记录；使用的原则是一样的。但是当`event` 表本身不足以满足你的检索要求的时候呢?
+
+   Suppose that you want to find out the ages at which each pet had its litters. We saw earlier how to calculate ages from two dates. The litter date of the mother is in the `event` table, but to calculate her age on that date you need her birth date, which is stored in the `pet` table. This means the query requires both tables:
+
+   设想以下你想要去查找每个动物生产幼崽时的年龄。我们之前了解了如何通过两个日期去计算年林。母亲的生崽日期存在`event` 表中，但是为了计算它生崽时候的年龄，你需要使用到`pet` 表中它的生日进行计算。这意味着这个查询同时需要两个表:
+
+   ```sql
+   mysql> SELECT pet.name,
+          TIMESTAMPDIFF(YEAR,birth,date) AS age,
+          remark
+          FROM pet INNER JOIN event
+            ON pet.name = event.name
+          WHERE event.type = 'litter';
+   +--------+------+-----------------------------+
+   | name   | age  | remark                      |
+   +--------+------+-----------------------------+
+   | Fluffy |    2 | 4 kittens, 3 female, 1 male |
+   | Buffy  |    4 | 5 puppies, 2 female, 3 male |
+   | Buffy  |    5 | 3 puppies, 3 female         |
+   +--------+------+-----------------------------+
+   ```
+
+   There are several things to note about this query:
+
+   关于这个查询你需要了解如下事物:
+
+   * The `FROM` clause joins two tables because the query needs to pull information from both of them.
+
+     `from` 分句把两个表连接了起来，因为查询需要从两个表中拉取信息
+
+   * When combining (joining) information from multiple tables, you need to specify how records in one table can be matched to records in the other. This is easy because they both have a `name` column. The query uses an `ON` clause to match up records in the two tables based on the `name` values.
+
+     当连接多个表的时候，你应该指明一个表中的记录时如何匹配到另一个表中的记录的。在这里是简单的，因为它们都有一个`name` 字段。这个查询使用了一个`on` 分句来指定根据`name` 字段的值来匹配两个表中的记录。
+
+     The query uses an `INNER JOIN` to combine the tables. An `INNER JOIN` permits rows from either table to appear in the result if and only if both tables meet the conditions specified in the `ON` clause. In this example, the `ON` clause specifies that the `name` column in the `pet` table must match the `name` column in the `event` table. If a name appears in one table but not the other, the row does not appear in the result because the condition in the `ON` clause fails.
+
+     这个查询使用了一个
+
+   * Because the `name` column occurs in both tables, you must be specific about which table you mean when referring to the column. This is done by prepending the table name to the column name.
+
+   You need not have two different tables to perform a join. Sometimes it is useful to join a table to itself, if you want to compare records in a table to other records in that same table. For example, to find breeding pairs among your pets, you can join the `pet` table with itself to produce candidate pairs of live males and females of like species:
+
+   ```sql
+   mysql> SELECT p1.name, p1.sex, p2.name, p2.sex, p1.species
+          FROM pet AS p1 INNER JOIN pet AS p2
+            ON p1.species = p2.species
+            AND p1.sex = 'f' AND p1.death IS NULL
+            AND p2.sex = 'm' AND p2.death IS NULL;
+   +--------+------+-------+------+---------+
+   | name   | sex  | name  | sex  | species |
+   +--------+------+-------+------+---------+
+   | Fluffy | f    | Claws | m    | cat     |
+   | Buffy  | f    | Fang  | m    | dog     |
+   +--------+------+-------+------+---------+
+   ```
+
+   In this query, we specify aliases for the table name to refer to the columns and keep straight which instance of the table each column reference is associated with.
