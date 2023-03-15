@@ -6,6 +6,8 @@
 
 ## 第一部分
 
+[parta](mysql_reference_a.md)
+
 1. 连接和断开连接
 
 2. 输入查询语句
@@ -13,6 +15,8 @@
 3. 创建和使用数据库
 
 ## 第二部分
+
+[partb](mysql_reference_b.md)
 
 1. 获取关于数据库和表的信息
 
